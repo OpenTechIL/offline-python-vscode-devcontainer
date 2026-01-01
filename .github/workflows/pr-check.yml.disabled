@@ -1,0 +1,24 @@
+name: Pre-Merge Build Check
+
+on:
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  validate-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Build (No Push)
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest-auto-test
+
+          context: .
+          containerfiles: ./Dockerfile          

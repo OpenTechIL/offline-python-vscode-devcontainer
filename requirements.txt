@@ -1,0 +1,5 @@
+pandas
+cryptography
+oracledb
+pytest
+ipykernel
