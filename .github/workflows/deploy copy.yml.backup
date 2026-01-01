@@ -9,19 +9,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      packages: write
+      contents: write # Required to create the Git Tag
+      packages: write # Required to push to GHCR
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # Create a lowercase version of the repository name
-      - name: Set lower case owner and repo
-        run: |
-          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Bump version and push tag
         id: tagger
@@ -41,14 +36,17 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ghcr.io/${{ env.REPO_LOWER }}
+          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
           tags: |
-            ${{ steps.tagger.outputs.new_tag }}
-            latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.tagger.outputs.new_tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+
           context: .
           containerfiles: ./Dockerfile
 
       - name: Push to GHCR
         uses: redhat-actions/push-to-registry@v2
         with:
+          image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}/{{ github.repository_name }}
