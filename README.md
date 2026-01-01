@@ -1,6 +1,6 @@
 # 🐍 Offline Python VSCode DevContainer
 
-[![Build Status](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/workflows/Build%20and%20Push%20Multi-Folder%20to%20GHCR/badge.svg)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/actions)
+[![Build Status](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/workflows/Build%20and%20Push%20to%20GHCR/badge.svg)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/OpenTechIL/offline-python-vscode-devcontainer?style=social)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/stargazers)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
