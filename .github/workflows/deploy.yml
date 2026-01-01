@@ -1,4 +1,4 @@
-name: Build and Push Multi-Folder to GHCR
+name: Build and Push to GHCR
 
 on:
   push:
