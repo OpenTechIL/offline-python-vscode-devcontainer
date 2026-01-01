@@ -1,37 +1,117 @@
-# Offline Python Dockers devcontainers Development environment
+# 🐍 Offline Python VSCode DevContainer
 
-This project provides a devcontainers for vscode development environment of Python applications in offline and air-gapped environments.
+[![Build Status](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/workflows/Build%20and%20Push%20Multi-Folder%20to%20GHCR/badge.svg)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/OpenTechIL/offline-python-vscode-devcontainer?style=social)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/stargazers)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![Podman](https://img.shields.io/badge/podman-supported-orange.svg)](https://podman.io/)
+[![GHCR](https://img.shields.io/badge/ghcr-latest-blue)](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/pkgs/container/offline-python-vscode-devcontainer)
 
-Note: I prefer using `podman` instead `docker`, so whenever i write `podman` you can use it also with `docker`
+> 🚀 A complete offline and air-gapped Python development environment in VSCode DevContainers with pre-installed packages and Oracle DB support.
 
+## 📋 Table of Contents
 
-## Quick start
-### VSCode with podman
+- [✨ Features](#-features)
+- [🎯 Why This Project](#-why-this-project)
+- [📋 Prerequisites](#-prerequisites)
+- [⚡ Quick Start](#-quick-start)
+- [🔧 Installation](#-installation)
+- [💻 Usage](#-usage)
+- [⚙️ Configuration](#️-configuration)
+- [🔒 Security](#-security)
+- [🐛 Troubleshooting](#-bug-troubleshooting)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-#### VS Code User Settings (Host Side)
-Press CTRL-SHIFT-P, and wirte `Open your User Settings (JSON)` on the host machine:
+## ✨ Features
+
+- 🌐 **Offline-First**: Complete air-gapped development environment
+- 🐳 **Container-Based**: Isolated development with Podman/Docker support
+- 🐍 **Python 3.13**: Latest Python version with pre-installed packages
+- 🗄️ **Oracle Database**: Built-in Oracle Instant Client support
+- 📝 **VSCode Integration**: Seamless development experience
+- 🧪 **Testing Ready**: Pre-configured pytest environment
+- 📦 **Pre-installed Packages**: pandas, cryptography, oracledb, pytest, ipykernel
+- 🔧 **Customizable**: Easy to extend with additional packages
+- 🛡️ **Security-Focused**: Non-root user execution
+
+## 🎯 Why This Project
+
+Traditional development environments require constant internet connectivity for package installation, updates, and VSCode extensions. This becomes problematic in:
+
+- 🏢 **Corporate environments** with strict network policies
+- 🏭 **Industrial settings** with air-gapped systems
+- 🏝️ **Remote locations** with limited connectivity
+- 🔒 **High-security environments** requiring isolation
+
+This project provides a **complete, self-contained development environment** that works entirely offline, ensuring consistent development experiences across any infrastructure.
+
+## 📋 Prerequisites
+
+### Required Software
+- **Podman** (recommended) or **Docker** 
+- **VSCode** with **Dev Containers extension**
+- **Git** for cloning the repository
+
+### System Requirements
+- **RAM**: 2GB minimum, 4GB recommended
+- **Storage**: 5GB available space
+- **OS**: Linux, macOS, or Windows with WSL2
+
+> **💡 Note**: This project uses Podman as the primary container runtime, but all commands work with Docker as well.
+
+## ⚡ Quick Start
+
+### One-Command Setup
+```bash
+git clone https://github.com/OpenTechIL/offline-python-vscode-devcontainer.git
+cd offline-python-vscode-devcontainer
+podman build . -t offline-python-vscode-devcontainer:dev-latest-local
+```
+
+### VSCode Integration
+1. Open the project in VSCode
+2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+3. Select "Dev Containers: Reopen in Container"
+4. Start coding! 🎉
+
+## 🔧 Installation
+
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/OpenTechIL/offline-python-vscode-devcontainer.git
+cd offline-python-vscode-devcontainer
+```
+
+### Step 2: Configure VSCode (Host Side)
+Press `Ctrl+Shift+P` and search for "Open User Settings (JSON)":
 
 ```json
 {
     "dev.containers.dockerPath": "podman",
     "dev.containers.dockerComposePath": "podman-compose",
-    // Window? "dev.containers.dockerSocketPath": "/var/run/podman.sock",
     "dev.containers.mountWaylandSocket": false,
     "remote.downloadExtensionsLocally": true,
     "remote.autoInstallAdditionalExtensions": false,
-    "dev.containers.copyGitConfig": false    
-
+    "dev.containers.copyGitConfig": false
 }
 ```
 
-### VSCode Workspace devecontiner.json example
+### Step 3: Build Container Image
+```bash
+podman build . -t offline-python-vscode-devcontainer:dev-latest-local
+```
+
+### Step 4: Configure DevContainer
+Create or update `.devcontainer/devcontainer.json`:
+
 ```json
 {
     "name": "Python Airgapped (Podman)",
     "image": "offline-python-vscode-devcontainer:dev-latest-local",
     "runArgs": [
         "--userns=keep-id",
-        "--security-opt", "label=disable" // Disables SELinux labeling if causing issues
+        "--security-opt", "label=disable"
     ],
     "remoteUser": "vscode",
     "remoteEnv": {
@@ -42,131 +122,235 @@ Press CTRL-SHIFT-P, and wirte `Open your User Settings (JSON)` on the host machi
             "settings": {
                 "python.defaultInterpreterPath": "/usr/local/bin/python",
                 "python.languageServer": "Pylance",
-                "extensions.ignoreRecommendations": true, // Stops VS Code from prompting you to install "helpful" extensions.
+                "extensions.ignoreRecommendations": true,
                 "extensions.autoUpdate": false,
                 "extensions.autoCheckUpdates": false
             }
         }
     },
-
     "updateRemoteUserUID": true,
     "overrideCommand": false
 }
 ```
 
+## 💻 Usage
 
-### use local
+### Basic Python Execution
 ```bash
-    #simulate python file
-    echo "print('test')" > test.py
-    
-    # mounte python with -v and run command -it
-    podman run \
-        -v ./test.py:/test.py:Z \
-        -it ghcr.io/opentechil/offline-python-vscode-devcontainer:latest \
-        python ./test.py    
+# Create a test file
+echo "print('Hello from offline container!')" > test.py
 
-    # more allegant way to mount to /home/appuser/test.py
-
-    # clean
-    rm test.py
-    
+# Run in container
+podman run \
+    -v ./test.py:/home/vscode/test.py:Z \
+    -it offline-python-vscode-devcontainer:dev-latest-local \
+    python /home/vscode/test.py
 ```
-### prepare for offline
 
+### Development Workflow
 ```bash
-# get the docker
+# Create project directory
+mkdir -p ./my-python-project
+cd ./my-python-project
+
+# Create Python file
+cat > main.py << 'EOF'
+import pandas as pd
+import oracledb
+
+print("🐍 Python environment ready!")
+print(f"📊 Pandas version: {pd.__version__}")
+print(f"🗄️ Oracle DB available: {oracledb.__version__}")
+EOF
+
+# Run with mounted volume
+podman run \
+    -v $(pwd):/home/vscode/project:Z \
+    -it offline-python-vscode-devcontainer:dev-latest-local \
+    python /home/vscode/project/main.py
+```
+
+### Running Tests
+```bash
+# Run all tests
+podman run \
+    -v $(pwd):/home/vscode/project:Z \
+    -it offline-python-vscode-devcontainer:dev-latest-local \
+    pytest -v /home/vscode/project/tests/
+
+# Run specific test file
+podman run \
+    -v $(pwd):/home/vscode/project:Z \
+    -it offline-python-vscode-devcontainer:dev-latest-local \
+    pytest -v /home/vscode/project/tests/test_specific.py
+```
+
+## ⚙️ Configuration
+
+### Adding Python Packages
+1. Edit `requirements.txt`:
+   ```
+   pandas
+   cryptography
+   oracledb
+   pytest
+   ipykernel
+   # Add your packages here
+   numpy
+   matplotlib
+   ```
+
+2. Rebuild the image:
+   ```bash
+   podman build . -t offline-python-vscode-devcontainer:dev-latest-local
+   ```
+
+### Custom VSCode Extensions
+Update `.devcontainer/devcontainer.json`:
+```json
+{
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter",
+                "ms-vscode.vscode-json"
+            ]
+        }
+    }
+}
+```
+
+## 🔒 Security
+
+### Air-Gapped Deployment
+```bash
+# 1. Pull image (online)
 podman pull ghcr.io/opentechil/offline-python-vscode-devcontainer:latest
 
-# create offline image
-podman save -o offline-python-vscode-devcontainer.tar ghcr.io/opentechil/offline-python-vscode-devcontainer:latest
+# 2. Save for offline transfer
+podman save -o offline-python-devcontainer.tar \
+    ghcr.io/opentechil/offline-python-vscode-devcontainer:latest
 
-# copy to offline some how
+# 3. Transfer to air-gapped system
+# (Use USB, network transfer, etc.)
 
-# load image
-podman load -i offline-python-vscode-devcontainer.tar
+# 4. Load on offline system
+podman load -i offline-python-devcontainer.tar
 
-# use
-podman run \
-        -v ./test.py:/test.py:Z \
-        -it ghcr.io/opentechil/offline-python-vscode-devcontainer:latest \
-        python ./test.py 
+# 5. Use offline
+podman run -v ./project:/home/vscode/project:Z \
+    -it ghcr.io/opentechil/offline-python-vscode-devcontainer:latest \
+    python /home/vscode/project/app.py
 ```
 
-## Getting Started
+### Security Features
+- 🔐 **Non-root execution**: All processes run as `vscode` user
+- 🛡️ **SELinux compatible**: Proper security contexts
+- 🔒 **No network access**: Container runs in isolation
+- 📋 **Minimal attack surface**: Only essential packages installed
 
-To get started with OfflinePythonDockers, clone the repository and follow these steps:
+## 🐛 Troubleshooting
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/opentechil/offline-python-vscode-devcontainer.git
-    cd offline-python-vscode-devcontainer
-    ```
-2.  **Build Docker images:**
-    ```bash
-    podman build . -t offline-python-vscode-devcontainer:dev-latest-local
-    
-3. **Run python**
-    TL;DR:
-    ```bash
-        podman run -v ./your-python-dir:/home/appuser/your-python-dir:Z \
-        -it localhost/offline-python-vscode-devcontainer:dev \
-        python ./your-python-dir/file.py
-    ```
+### Common Issues
 
-    Full example:
-    ```bash
-    # Create folder to share with docker
-    mkdir -p ./your-python-dir
+#### Space Issues on Linux
+<details>
+<summary>Click to expand</summary>
 
-    # Write a code
-    echo 'print ("Hello world!")' > ./your-python-dir/file.py
-    
-    # Run it
-    podman run \
-        -v ./your-python-dir:/home/appuser/your-python-dir:Z \
-        -it localhost/offline-python-vscode-devcontainer:dev \
-        python ./your-python-dir/file.py
+**Problem**: Build fails with "no space left on device"
 
-    #output> Hello world!
-    ```
-
-## How To
-### Add python package for offline
-1. just edit the `requirements.txt` file and add packages
-2. build docker `podman build . -t offline-python-vscode-devcontainer:dev-latest-local`
-3. run it
-
-### Export to offline use
-- Just use `podman save -o my-offline-py.tar offline-python-vscode-devcontainer:dev-latest-local`
-- copy the tar
-- then `podman load -i my-offline-py.tar`
-
-## Troubleshooting
-
-### Space on linux 
-some times becuse limit `/tmp` folder 
-
-    copying layers and metadata for container "": initializing source
-     containers-storage:working-container: storing layer "" to file: on copy: 
-     writing to tar filter pipe (closed=false,err=reading tar archive: 
-     copying content for "home/appuser/.local/lib/python3.13/site-packages/package/somefile.py":
-     write /var/tmp/buildah35812317/layer: no space left on device):
-     write /var/tmp/buildah35812317/layer: no space left on device
-
-Solution:
+**Solution**:
 ```bash
-    mkdir -p ~/podman-tmp
-    export TMPDIR=~/podman-tmp
+# Create temporary directory with more space
+mkdir -p ~/podman-tmp
+export TMPDIR=~/podman-tmp
+
+# Then rebuild
+podman build . -t offline-python-vscode-devcontainer:dev-latest-local
+```
+</details>
+
+#### Permission Issues
+<details>
+<summary>Click to expand</summary>
+
+**Problem**: Permission denied errors with mounted volumes
+
+**Solution**:
+```bash
+# Ensure proper SELinux context
+podman run \
+    -v ./project:/home/vscode/project:Z \
+    -it offline-python-vscode-devcontainer:dev-latest-local \
+    python /home/vscode/project/app.py
+```
+</details>
+
+#### VSCode Extension Issues
+<details>
+<summary>Click to expand</summary>
+
+**Problem**: Extensions not installing or working
+
+**Solution**:
+1. Check VSCode settings on host
+2. Ensure `remote.downloadExtensionsLocally: true`
+3. Restart VSCode and container
+</details>
+
+### Getting Help
+- 📖 Check [AGENTS.md](./AGENTS.md) for development guidelines
+- 🐛 [Report issues](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/issues)
+- 💬 Start a [discussion](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/discussions)
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our [CONTRIBUTORS.md](./CONTRIBUTORS.md) for detailed guidelines.
+
+### Development Workflow
+```bash
+# 1. Create feature branch
+git flow feature start your-feature
+
+# 2. Make changes
+# ... edit files ...
+
+# 3. Test your changes
+podman build . -t offline-python-vscode-devcontainer:test
+podman run -it offline-python-vscode-devcontainer:test pytest -v
+
+# 4. Commit and push
+git add .
+git commit -m "feat: add your feature"
+git push origin feature/your-feature
+
+# 5. Create Pull Request
 ```
 
-## Contributing
+### Code Style
+- Follow Dockerfile best practices
+- Use multi-stage builds
+- Keep images small and secure
+- Test thoroughly before submitting
 
-We encourage contributions! Please read our [`CONTRIBUTORS.md`](./CONTRIBUTORS.md) for guidelines on:
-*   Reporting bugs
-*   Suggesting enhancements
-*   Submitting pull requests
-*   Code style and conventions
+## 📄 License
 
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Microsoft Dev Containers](https://containers.dev/) for the base images
+- [Podman](https://podman.io/) for container runtime
+- [Python Software Foundation](https://www.python.org/) for Python
+- All [contributors](https://github.com/OpenTechIL/offline-python-vscode-devcontainer/graphs/contributors) who make this project better
+
+---
+
+<div align="center">
+
+**[⬆️ Back to top](#-offline-python-vscode-devcontainer)**
+
+Made with ❤️ for offline Python development
+
+</div>
