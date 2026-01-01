@@ -8,8 +8,8 @@ Note: I prefer using `podman` instead `docker`, so whenever i write `podman` you
 ## Quick start
 ### VSCode with podman
 
-VS Code User Settings (Host Side)
-You must tell the VS Code Dev Containers extension to use podman instead of the default docker binary. Open your User Settings (JSON) on the host machine:
+#### VS Code User Settings (Host Side)
+Press CTRL-SHIFT-P, and wirte `Open your User Settings (JSON)` on the host machine:
 
 ```json
 {
@@ -23,6 +23,37 @@ You must tell the VS Code Dev Containers extension to use podman instead of the 
 
 }
 ```
+
+### VSCode Workspace devecontiner.json example
+```json
+{
+    "name": "Python Airgapped (Podman)",
+    "image": "offline-python-vscode-devcontainer:dev-latest-local",
+    "runArgs": [
+        "--userns=keep-id",
+        "--security-opt", "label=disable" // Disables SELinux labeling if causing issues
+    ],
+    "remoteUser": "vscode",
+    "remoteEnv": {
+        "PODMAN_USERNS": "keep-id"
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.languageServer": "Pylance",
+                "extensions.ignoreRecommendations": true, // Stops VS Code from prompting you to install "helpful" extensions.
+                "extensions.autoUpdate": false,
+                "extensions.autoCheckUpdates": false
+            }
+        }
+    },
+
+    "updateRemoteUserUID": true,
+    "overrideCommand": false
+}
+```
+
 
 ### use local
 ```bash
