@@ -18,10 +18,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Create a lowercase version of the repository name
-      - name: Set lower case owner and repo
+      # Ensure lowercase to avoid registry errors
+      - name: Set lower case repo name
         run: |
-          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Bump version and push tag
         id: tagger
@@ -41,14 +41,16 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ghcr.io/${{ env.REPO_LOWER }}
+          # Use the full name in tags to satisfy both build and push actions
           tags: |
-            ${{ steps.tagger.outputs.new_tag }}
-            latest
+            ${{ env.IMAGE_NAME }}:${{ steps.tagger.outputs.new_tag }}
+            ${{ env.IMAGE_NAME }}:latest
           context: .
           containerfiles: ./Dockerfile
 
       - name: Push to GHCR
         uses: redhat-actions/push-to-registry@v2
         with:
+          # Providing tags from the previous step is sufficient 
+          # when they are "fully qualified" (contain the registry URL)
           tags: ${{ steps.build_image.outputs.tags }}
