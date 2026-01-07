@@ -8,6 +8,6 @@ pip install -r requirements.txt
 
 pytest -v /home/vscode/py-apps/tests/
 
-.venv/bin/deativate
+# .venv/bin/deactiveate
 
 rm -rf .venv

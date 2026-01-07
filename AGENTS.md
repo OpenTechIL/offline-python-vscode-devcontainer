@@ -1,7 +1,7 @@
 # AGENT GUIDELINES FOR OFFLINE PYTHON DEVCONTAINER PROJECT
 
 ## Overview
-This document provides essential guidelines for agents operating within the `offline-python-vscode-devcontainer` repository. This project focuses on providing an offline and air-gapped development environment for Python applications using Docker/Podman devcontainers. The emphasis is on container management and environment setup, rather than specific Python application code style.
+This document provides essential guidelines for agents operating within the `offline-python-vscode-devcontainer` repository. This project focuses on providing an offline and air-gapped development environment for Python applications using Docker/Podman devcontainers. The emphasis is on container management and environment setup, complemented by Python application development best practices.
 
 ## 1. Build, Lint, and Test Commands
 
@@ -39,9 +39,14 @@ Tests for Python applications *within* the devcontainer are run using `pytest`.
     ```
     Replace `<test_file.py>` and `<test_function_name>` accordingly.
 
+*   **Run tests with coverage (inside the container):**
+    ```bash
+    pytest -v --cov=/home/vscode/py-apps /home/vscode/py-apps/tests/
+    ```
+
 ## 2. Code Style Guidelines
 
-Given that this is a container project, these guidelines focus on Dockerfile and `devcontainer.json` conventions. Python-specific code style is left to the individual Python projects that will utilize these devcontainers.
+Given that this is a container project, these guidelines focus on Dockerfile and `devcontainer.json` conventions, supplemented with Python code style for applications running within the containers.
 
 ### 2.1. Dockerfile Best Practices
 
@@ -79,3 +84,65 @@ The project adheres to the `git-flow` branching model:
 *   **Documentation**: Ensure `README.md` and `CONTRIBUTORS.md` are kept up-to-date.
 *   **Dependency Management**: Python dependencies are managed via runtime image wheelhouse. Core packages are provided by the base runtime image (`ghcr.io/opentechil/offline-python-runtime-docker:v1.1.0-release.0`), while additional packages can be installed at runtime or via project-specific `requirements.txt` for persistent installations.
 *   **Offline Focus**: All configurations and scripts should prioritize and support the offline/air-gapped nature of the development environment.
+
+## 3. Development Workflow
+
+### 3.1. Container Testing
+Always test changes within the container environment:
+```bash
+# Build with changes
+podman build . -t offline-python-vscode-devcontainer:test
+
+# Run tests
+podman run -it offline-python-vscode-devcontainer:test pytest -v /home/vscode/py-apps/tests/
+```
+
+### 3.2. Package Management
+- **Runtime Image**: Core packages come from the base runtime image
+- **Project Requirements**: Add application-specific packages to `requirements.txt`
+- **Offline Packages**: For true offline deployment, packages must be added to the runtime image repository
+
+### 3.3. Security Considerations
+- Always use non-root execution (`remoteUser: "vscode"`)
+- Include proper SELinux contexts for mounted volumes (`:Z` flag)
+- Validate input and sanitize data in Python applications
+- Use environment variables for configuration, not hardcoded values
+
+## 4. Environment Variables and Configuration
+
+Key environment variables used in this project:
+- `ORACLE_INSTANTCLIENT_PATH`: Path to Oracle Instant Client libraries
+- `PODMAN_USERNS`: User namespace configuration for Podman
+- `PYTHONPATH`: Python module search path (if needed)
+
+## 5. Troubleshooting Common Issues
+
+### 5.1. Container Issues
+- **Permission denied**: Use `:Z` flag on volume mounts for SELinux
+- **Space issues**: Set `TMPDIR` environment variable for build temp space
+- **Network issues**: This is an offline-first container - expect limited network access
+
+### 5.2. Python Issues
+- **Import errors**: Verify packages are in runtime image or requirements.txt
+- **Oracle client errors**: Check `ORACLE_INSTANTCLIENT_PATH` environment variable
+- **Test failures**: Run tests inside container, not on host system
+
+## 6. Repository Structure Understanding
+
+```
+offline-python-vscode-devcontainer/
+├── Dockerfile                 # Multi-stage container build
+├── AGENTS.md                  # This file - agent guidelines
+├── README.md                  # Main project documentation
+├── CONTRIBUTORS.md            # Git flow and contribution guidelines
+├── .github/workflows/         # CI/CD pipelines
+├── py-apps/                   # Test applications and examples
+│   ├── main.py               # Simple test script
+│   ├── requirements.txt      # Additional Python packages
+│   └── tests/                # pytest test suite
+│       ├── test_imports.py   # Package import validation
+│       └── test_thick_oracle.py # Oracle client testing
+└── devcontiner-workspace.example/  # Example workspace setup
+```
+
+Remember: This project's primary focus is providing the container infrastructure. Python applications that run within should follow these guidelines, but the main emphasis remains on container management, offline deployment, and DevContainer integration.
