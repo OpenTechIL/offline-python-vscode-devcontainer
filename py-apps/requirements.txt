@@ -1,0 +1,6 @@
+# The disterbutions should be exists as whl
+# from runner docker in Wheelhouse:
+#   https://github.com/OpenTechIL/offline-python-runtime-docker
+#
+oracledb
+pytest
