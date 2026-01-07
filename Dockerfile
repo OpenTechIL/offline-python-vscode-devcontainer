@@ -4,7 +4,7 @@
 #       https://github.com/OpenTechIL/offline-python-runtime-docker    
 #   
 #   Update exact release. not "latests" etc to be consistent
-FROM ghcr.io/opentechil/offline-python-runtime-docker:v1.0.0-release.0 AS builder
+FROM ghcr.io/opentechil/offline-python-runtime-docker:v1.1.0-release.0 AS builder
 
 
 #

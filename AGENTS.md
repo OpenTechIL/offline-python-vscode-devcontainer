@@ -77,5 +77,5 @@ The project adheres to the `git-flow` branching model:
 ### 2.4. General Project Conventions
 
 *   **Documentation**: Ensure `README.md` and `CONTRIBUTORS.md` are kept up-to-date.
-*   **Dependency Management**: Python dependencies are managed via `requirements.txt`. Any additions should be made there and trigger a Docker image rebuild.
+*   **Dependency Management**: Python dependencies are managed via runtime image wheelhouse. Core packages are provided by the base runtime image (`ghcr.io/opentechil/offline-python-runtime-docker:v1.1.0-release.0`), while additional packages can be installed at runtime or via project-specific `requirements.txt` for persistent installations.
 *   **Offline Focus**: All configurations and scripts should prioritize and support the offline/air-gapped nature of the development environment.

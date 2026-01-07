@@ -19,6 +19,7 @@
 - [💻 Usage](#-usage)
 - [⚙️ Configuration](#️-configuration)
 - [🔒 Security](#-security)
+- [📝 Changelog](#-changelog)
 - [🐛 Troubleshooting](#-bug-troubleshooting)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
@@ -27,11 +28,12 @@
 
 - 🌐 **Offline-First**: Complete air-gapped development environment
 - 🐳 **Container-Based**: Isolated development with Podman/Docker support
-- 🐍 **Python 3.13**: Latest Python version with pre-installed packages
-- 🗄️ **Oracle Database**: Built-in Oracle Instant Client support
+- 🐍 **Python 3.13**: Latest Python version with runtime image foundation
+- 🗄️ **Oracle Database**: Built-in Oracle Instant Client from runtime image
 - 📝 **VSCode Integration**: Seamless development experience
 - 🧪 **Testing Ready**: Pre-configured pytest environment
-- 📦 **Pre-installed Packages**: pandas, cryptography, oracledb, pytest, ipykernel
+- 🏗️ **Runtime Image Base**: Built on `ghcr.io/opentechil/offline-python-runtime-docker:v1.1.0-release.0`
+- 📦 **Runtime Wheelhouse**: Package management handled at runtime for compatibility
 - 🔧 **Customizable**: Easy to extend with additional packages
 - 🛡️ **Security-Focused**: Non-root user execution
 
@@ -161,6 +163,7 @@ import oracledb
 print("🐍 Python environment ready!")
 print(f"📊 Pandas version: {pd.__version__}")
 print(f"🗄️ Oracle DB available: {oracledb.__version__}")
+print(f"🏗️ Runtime image foundation active")
 EOF
 
 # Run with mounted volume
@@ -187,23 +190,49 @@ podman run \
 
 ## ⚙️ Configuration
 
+### Runtime Image Architecture
+This devcontainer is built on top of the offline Python runtime image which provides:
+- **Oracle Instant Client**: Full database connectivity support
+- **Core Packages**: Essential Python packages pre-installed
+- **Runtime Wheelhouse**: Package management handled at runtime for compatibility
+
+**📦 Runtime Image Repository**: [github.com/OpenTechIL/offline-python-runtime-docker](https://github.com/OpenTechIL/offline-python-runtime-docker) - The base runtime image provides the core Python environment, Oracle drivers, and offline package management capabilities.
+
 ### Adding Python Packages
-1. Edit `requirements.txt`:
-   ```
-   pandas
-   cryptography
-   oracledb
-   pytest
-   ipykernel
-   # Add your packages here
-   numpy
-   matplotlib
+Since v1.1.0, package management is handled at runtime through the wheelhouse system:
+
+1. **For container runtime**: Install packages directly in the running container:
+   ```bash
+   # Inside the devcontainer
+   pip install numpy matplotlib seaborn
    ```
 
-2. Rebuild the image:
-   ```bash
-   podman build . -t offline-python-vscode-devcontainer:dev-latest-local
+2. **For persistent packages**: Add to your project's `requirements.txt`:
    ```
+   numpy
+   matplotlib
+   seaborn
+   # Your application-specific packages
+   ```
+
+3. **Runtime wheelhouse access**: All packages are installed from the pre-configured wheelhouse for offline compatibility.
+
+Note: Core packages (pandas, cryptography, oracledb, pytest, ipykernel) are provided by the base runtime image and available immediately.
+
+### 📦 Adding Packages to Offline Environment
+
+**⚠️ Important**: For packages to be available in offline environments, they must be added to the **runtime image** itself:
+
+- **Runtime Image Repository**: [github.com/OpenTechIL/offline-python-runtime-docker](https://github.com/OpenTechIL/offline-python-runtime-docker)
+- **How to Add**: Submit a PR or issue to the runtime image repository with your package requirements
+- **Why**: The runtime image contains the pre-built wheelhouse that enables offline package installation
+
+**Process for Adding New Offline Packages**:
+1. Check if the package already exists in the runtime image
+2. If not, open an issue or PR in the [runtime image repository](https://github.com/OpenTechIL/offline-python-runtime-docker)
+3. Once included in a new runtime release, update this devcontainer to use the new version
+
+This ensures your packages are available for true offline deployment without requiring network access.
 
 ### Custom VSCode Extensions
 Update `.devcontainer/devcontainer.json`:
@@ -249,6 +278,10 @@ podman run -v ./project:/home/vscode/project:Z \
 - 🛡️ **SELinux compatible**: Proper security contexts
 - 🔒 **No network access**: Container runs in isolation
 - 📋 **Minimal attack surface**: Only essential packages installed
+
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history and feature updates.
 
 ## 🐛 Troubleshooting
 
